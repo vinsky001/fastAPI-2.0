@@ -31,3 +31,22 @@ class Book(BaseModel):
             }
         }
     }
+
+# Book update schema for PUT (all fields optional)
+class BookUpdate(BaseModel):
+    title: Optional[str] = Field(None, min_length=1, description="Title of the book")
+    author: Optional[str] = Field(None, min_length=1, description="Author of the book")
+    price: Optional[float] = Field(None, gt=0, description="Price of the book")
+    description: Optional[str] = Field(None, description="Description of the book")
+    isbn: Optional[str] = Field(None, description="ISBN number of the book")
+    publication_year: Optional[int] = Field(None, ge=1000, le=9999, description="Year of publication")
+    
+    model_config = {
+        "json_schema_extra": {
+            "example": {
+                "title": "Updated Book Title",
+                "price": 15.99,
+                "description": "Updated description"
+            }
+        }
+    }
