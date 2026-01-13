@@ -1,6 +1,12 @@
 from pydantic import BaseModel, Field
 from typing import Optional
 
+# Error response schema
+class ErrorResponse(BaseModel):
+    error: str = Field(..., description="Error type")
+    message: str = Field(..., description="Detailed error message")
+    suggestion: Optional[str] = Field(None, description="Helpful suggestion to resolve the error")
+
 #book schema
 class Book(BaseModel):
     id: int = Field(..., description="Unique identifier for the book")
