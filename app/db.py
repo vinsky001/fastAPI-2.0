@@ -1,8 +1,10 @@
 from collections.abc import AsyncGenerator
 
-from sqlalchemy import Column, String, Text, Float, Integer
+from sqlalchemy import Boolean, Column, DateTime, Float, Integer, String, Text
 from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine, async_sessionmaker
 from sqlalchemy.orm import DeclarativeBase
+from sqlalchemy.sql import func
+
 
 # SQLite database URL (async)
 DATABASE_URL = "sqlite+aiosqlite:///./test.db"
@@ -10,6 +12,19 @@ DATABASE_URL = "sqlite+aiosqlite:///./test.db"
 
 class Base(DeclarativeBase):
     """Base class for all ORM models."""
+
+
+class UserModel(Base):
+    """SQLAlchemy ORM model for the users table (accounts)."""
+
+    __tablename__ = "users"
+
+    id = Column(Integer, primary_key=True, index=True)
+    email = Column(String(255), unique=True, index=True, nullable=False)
+    hashed_password = Column(String(255), nullable=False)
+    is_active = Column(Boolean, nullable=False, server_default="1")
+    is_superuser = Column(Boolean, nullable=False, server_default="0")
+    created_at = Column(DateTime(timezone=True), server_default=func.now(), nullable=False)
 
 
 class BookModel(Base):
