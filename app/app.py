@@ -197,3 +197,41 @@ def update_book(book_id: int, book_update: BookUpdate):
     books[book_id] = updated_book
     
     return updated_book
+
+
+@app.delete("/books/{book_id}", response_model=dict, responses={
+    404: {
+        "model": ErrorResponse,
+        "description": "Book not found",
+        "content": {
+            "application/json": {
+                "example": {
+                    "error": "BookNotFound",
+                    "message": "Book with ID 5 was not found in the database.",
+                    "suggestion": "Please check the book ID and try again. You can view all available books using GET /books endpoint."
+                }
+            }
+        }
+    }
+})
+def delete_book(book_id: int):
+    if book_id not in books:
+        available_ids = list(books.keys()) if books else []
+        suggestion = f"Available book IDs: {available_ids}" if available_ids else "No books available. Create a book first using POST /books"
+        raise HTTPException(
+            status_code=404,
+            detail={
+                "error": "BookNotFound",
+                "message": f"Book with ID {book_id} was not found in the database.",
+                "suggestion": suggestion,
+            },
+        )
+
+    # Delete the book from the in-memory "database"
+    deleted_book = books.pop(book_id)
+
+    # Return a confirmation response
+    return {
+        "message": f"Book with ID {book_id} has been deleted successfully.",
+        "deleted_book": deleted_book,
+    }
