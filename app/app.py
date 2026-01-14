@@ -2,8 +2,10 @@ from fastapi import FastAPI, HTTPException, Depends
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.schema import Book, BookUpdate, ErrorResponse
+from app.schema import Book, BookUpdate, ErrorResponse, UserCreate, UserLogin, UserResponse, Token
 from app.db import BookModel, get_session, init_db
+from app.users import register_user, login_user, get_current_active_user
+from app.db import UserModel
 
 app = FastAPI(
     title="Book Store API",
@@ -288,3 +290,36 @@ async def delete_book(
         "message": f"Book with ID {book_id} has been deleted successfully.",
         "deleted_book": deleted_book,
     }
+
+
+# ==================== USER AUTHENTICATION ROUTES ====================
+
+@app.post("/register", response_model=UserResponse, status_code=201)
+async def register(user_data: UserCreate):
+    """
+    Register a new user account.
+    
+    Creates a new user with the provided information and returns the user details.
+    """
+    return await register_user(user_data)
+
+
+@app.post("/login", response_model=Token)
+async def login(user_credentials: UserLogin):
+    """
+    Login a user and receive a JWT access token.
+    
+    Returns a JWT token that expires in 30 minutes. Use this token in the Authorization header
+    for protected endpoints: `Authorization: Bearer <token>`
+    """
+    return await login_user(user_credentials)
+
+
+@app.get("/me", response_model=UserResponse)
+async def get_current_user_info(current_user: UserModel = Depends(get_current_active_user)):
+    """
+    Get the current authenticated user's information.
+    
+    Requires a valid JWT token in the Authorization header.
+    """
+    return UserResponse.model_validate(current_user)

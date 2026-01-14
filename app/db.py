@@ -1,6 +1,7 @@
 from collections.abc import AsyncGenerator
 
-from sqlalchemy import Boolean, Column, DateTime, Float, Integer, String, Text
+from sqlalchemy import Boolean, Column, Date, DateTime, Float, Integer, String, Text
+from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine, async_sessionmaker
 from sqlalchemy.orm import DeclarativeBase
 from sqlalchemy.sql import func
@@ -13,7 +14,7 @@ DATABASE_URL = "sqlite+aiosqlite:///./test.db"
 class Base(DeclarativeBase):
     """Base class for all ORM models."""
 
-
+#
 class UserModel(Base):
     """SQLAlchemy ORM model for the users table (accounts)."""
 
@@ -22,6 +23,9 @@ class UserModel(Base):
     id = Column(Integer, primary_key=True, index=True)
     email = Column(String(255), unique=True, index=True, nullable=False)
     hashed_password = Column(String(255), nullable=False)
+    first_name = Column(String(100), nullable=False)
+    last_name = Column(String(100), nullable=False)
+    date_of_birth = Column(Date, nullable=False)
     is_active = Column(Boolean, nullable=False, server_default="1")
     is_superuser = Column(Boolean, nullable=False, server_default="0")
     created_at = Column(DateTime(timezone=True), server_default=func.now(), nullable=False)
@@ -54,5 +58,11 @@ async def get_session() -> AsyncGenerator[AsyncSession, None]:
 
 async def init_db() -> None:
     """Initialize the database (create tables)."""
-    async with engine.begin() as conn:
-        await conn.run_sync(Base.metadata.create_all)
+    try:
+        async with engine.begin() as conn:
+            await conn.run_sync(Base.metadata.create_all)
+    except Exception as e:
+        print(f"Error initializing database: {e}")
+        raise
+
+        
