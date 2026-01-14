@@ -13,7 +13,7 @@ from app.db import UserModel, get_session
 from app.schema import UserCreate, UserLogin, UserResponse, Token, TokenData
 
 # JWT Configuration
-SECRET_KEY = os.getenv("SECRET_KEY", "your-secret-key-change-this-in-production")
+SECRET_KEY = os.getenv("")
 ALGORITHM = "HS256"
 ACCESS_TOKEN_EXPIRE_MINUTES = 30
 
