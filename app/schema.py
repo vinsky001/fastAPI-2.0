@@ -19,6 +19,7 @@ class Book(BaseModel):
     
     #example of how the book should be formatted in the JSON response
     model_config = {
+        "from_attributes": True,  # allow creating from ORM objects
         "json_schema_extra": {
             "example": {
                 "id": 1,
@@ -27,9 +28,9 @@ class Book(BaseModel):
                 "price": 12.99,
                 "description": "A classic American novel",
                 "isbn": "978-0-7432-7356-5",
-                "publication_year": 1925
+                "publication_year": 1925,
             }
-        }
+        },
     }
 
 # Book update schema for PUT (all fields optional)
