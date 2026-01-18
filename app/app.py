@@ -27,18 +27,17 @@ async def on_startup() -> None:
     description="Retrieve all books from the store. Use the 'limit' parameter to restrict the number of results.",
 )
 async def get_all_books(
-    limit: int | None = None, session: AsyncSession = Depends(get_session)
-):
+    page: int = 1, page_size: int = 20, session: AsyncSession = Depends(get_session)
+ ):
     """
-    Get all books from the store.
-
-    - **limit**: Optional parameter to limit the number of books returned
-    - Returns a list of books (or limited subset if limit is specified)
+    Implemented pagination for retrieving books.
     """
-    query = select(BookModel)
-    if limit and limit > 0:
-        query = query.limit(limit)
-
+    offset = (page - 1) * page_size
+    query = (
+        select(BookModel)
+        .offset(offset)
+        .limit(page_size)
+    )
     result = await session.execute(query)
     books = result.scalars().all()
     return [Book.model_validate(book) for book in books]
